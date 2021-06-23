@@ -1,0 +1,2 @@
+var weather_props = {
+};

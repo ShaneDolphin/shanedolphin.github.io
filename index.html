@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shane's Weather App</title>
+    <link rel="stylesheet" href="css/weather.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://d3js.org/d3.v6.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+
+</head>
+<body>
+<div id="filter_div">
+    2011 Hail Data - Week No:
+    <input type="radio" id="1" name="week" class="week" value="0" checked><label for="1">1</label>
+    <input type="radio" id="2" name="week" class="week" value="1" ><label for="2">2</label>
+    <input type="radio" id="3" name="week" class="week" value="2" ><label for="3">3</label>
+    <input type="radio" id="4" name="week" class="week" value="3" ><label for="4">4</label>
+    <input type="radio" id="5" name="week" class="week" value="4" ><label for="5">5</label>
+    <input type="radio" id="6" name="week" class="week" value="5" ><label for="6">6</label>
+    <input type="radio" id="7" name="week" class="week" value="6" ><label for="7">7</label>
+    <input type="radio" id="8" name="week" class="week" value="7" ><label for="8">8</label>
+    <input type="radio" id="9" name="week" class="week" value="8" ><label for="9">9</label>
+    <input type="radio" id="10" name="week" class="week" value="9" ><label for="10">10</label>
+    <br>
+   Result filtering:
+    <input type="radio" id="all" name="filter" class="filter" value="all" checked><label for="all">all</label>
+    <input type="radio" id="top_10" name="filter" class="filter" value="top_10" ><label for="top_10">top 10%</label>
+    <input type="radio" id="top_20" name="filter" class="filter" value="top_20" ><label for="top_20">top 20%</label>
+    <input type="radio" id="top_50" name="filter" class="filter" value="top_50" ><label for="top_50">top 50%</label>
+  <br>
+    <input type="checkbox"  id="hail" name="show"  class="show"  value="hail" checked>
+    <label style="color:#08306b; font-weight: bold;" for="hail">Show Hail</label>
+    <input type="checkbox" id="wind" name="show"  class="show" value="wind" checked>
+    <label for="wind" style="color:#00441b; font-weight: bold;">Show Wind</label>
+    <input type="checkbox" id="tornado" name="show"  class="show" value="tornado" checked>
+    <label for="tornado" style="color:#cb181d; font-weight: bold;">Show Tornado</label>
+</div>
+<div id="chart_div"></div>
+<div class="tooltip"></div>
+
+
+<script type="text/javascript" src="js/weather_properties.js"></script>
+<script type="text/javascript" src="js/weather.js"></script>
+<script type="text/javascript" src="js/weather_reusables.js"></script>
+<script>
+
+
+    //load data
+    var promises = [
+        d3.csv("data/hail.csv"),
+			d3.csv("data/wind.csv"),
+			d3.csv("data/tornados.csv"),
+        d3.json("data/us.json")
+    ];
+
+    Promise.all(promises).then(ready);
+
+    function ready(all_datasets) {
+    	const week = 0;
+    	const filter = "all";
+    	let show_wind = true, show_hail = true, show_tornado = true;
+
+    	var my_dataset = all_datasets[0];
+    	my_dataset.map(m => m.type = "hail");
+    	all_datasets[1].map(m => m.type = "wind");
+    	my_dataset = my_dataset.concat(all_datasets[1]);
+		all_datasets[2].map(m => m.type = "tornado");
+		my_dataset = my_dataset.concat(all_datasets[2]);
+
+        var full_dataset = JSON.parse(JSON.stringify(my_dataset));
+
+        initialise_map(my_dataset,all_datasets[3], week,filter);
+
+			d3.selectAll(".week")
+				.on("change",function(){
+					initialise_map(my_dataset,all_datasets[3], +this.value,filter);
+				})
+
+			d3.selectAll(".filter")
+				.on("change",function(){
+					initialise_map(my_dataset,all_datasets[3], week, this.value);
+				});
+
+			//this bit is hacked together super quickly so that you can have the demo tonight.
+            //will be easy enough to rationalise later
+			d3.selectAll(".show")
+				.on("change",function(){
+					if(this.value === "wind"){
+						show_wind = this.checked;
+                    } else if(this.value === "hail"){
+						show_hail = this.checked;
+					} else if(this.value === "tornado"){
+					    show_tornado = this.checked;
+					}
+					if(show_wind === true && show_tornado === true && show_hail === true){
+						my_dataset = JSON.parse(JSON.stringify(full_dataset));
+						initialise_map(my_dataset,all_datasets[3],week,filter);
+                    } else {
+						var filtered = JSON.parse(JSON.stringify(full_dataset));
+						if(show_wind === false){
+							filtered = filtered.filter(f => f.type !== "wind");
+                        }
+						if (show_hail === false){
+                          filtered = filtered.filter(f => f.type !== "hail");
+                        }
+						if (show_tornado === false){
+						filtered = filtered.filter(f => f.type !== "tornado");
+                        }
+						initialise_map(filtered,all_datasets[3],week,filter)
+                    }
+			})
+
+    }
+
+
+
+
+</script>
+</body>
+</html>

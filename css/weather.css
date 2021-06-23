@@ -1,0 +1,51 @@
+body,div{
+  font-family: Arial;
+  font-weight: 500;
+  font-size: 12px;
+  margin:0;
+  padding: 0;
+}
+
+#filter_div{
+  text-align: center;
+  background-color: white;
+  width: 100vw;
+  height:10vh;
+  float: left;
+  text-align: center;
+}
+
+#chart_div{
+  background-color: #F0F0F0;
+  left: 40vw;
+  width: 100vw;
+  height:90vh;
+  float: left;
+}
+
+.map_path{
+  stroke: #E0E0E0;
+  stroke-width: 0.5;
+  fill: white;
+}
+
+.tooltip{
+  visibility: hidden;
+  border: 1px solid grey;
+  border-radius: 4px;
+  position: absolute;
+  text-align: left;
+  padding: 3px;
+  background: white;
+  pointer-events: none;
+  font-size: 0.8em;
+  width: auto;
+  height: auto;
+  margin-right: 110px;
+}
+
+.zoom_rect{
+  fill: white;
+  rx: 3;
+  ry: 3;
+}
